@@ -399,47 +399,26 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
-  # called upon submitting the new artist listing form
-
-
-  error = False
-  try:
-       
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        phone = request.form['phone']
-        genres = request.form['genres'] 
-        image_link = request.form['image_link']
-        facebook_link = request.form['facebook_link']
-        website_link = request.form.get('website_link', '') 
-
-       
-        seeking_venue = 'seeking_venue' in request.form
-        seeking_description = request.form.get('seeking_description', '')
-        
-        
-        artist = Artist(name=name, city=city, state=state, phone=phone, genres=genres,
-                        image_link=image_link, facebook_link=facebook_link,
-                        website_link=website_link, seeking_venue=seeking_venue,
-                        seeking_description=seeking_description)
-        
+    # called upon submitting the new artist listing form
+    form = ArtistForm(request.form)
+    try:
+        artist = Artist()
+        form.populate_obj(artist)
         db.session.add(artist)
         db.session.commit()
         
-        
-        
-  except Exception as e:
+    except ValueError as e:
+        print(e)
+        flash('there is invalid value.')
         db.session.rollback()
-        flash('An error occurred. Artist ' + request.form['name'] + ' could not be listed.')
-        return jsonify({"error": str(e)}), 500
-  finally:
-        db.session.close()
+    finally:
+        db.session.close()  
 
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    # on successful db insert, flash success
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    return redirect('/')
 
-  return redirect('/')
+  
 
 
 #  Shows
@@ -475,33 +454,22 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
 
+  form = ShowForm(request.form)
   try:
-    venue_id=request.form['venue_id']
-    artist_id=request.form['artist_id']
-    start_time_str = request.form['start_time']
-    start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-
-
-    new_show = Show(venue_id=venue_id, artist_id=artist_id, start_time=start_time)
-    db.session.add(new_show)
-    db.session.commit()
-    flash('Show was successfully listed!')
-    
+      show = Show()
+      form.populate_obj(show)
+      db.session.add(show)
+      db.session.commit()
+      flash('...')
   except ValueError as e:
-        # This block catches any string parsing errors
-        db.session.rollback()
-        flash('An error occurred. Incorrect datetime format.')
-        return jsonify({"error": str(e)}), 400
-  except Exception as e:
-        db.session.rollback()
-        flash('An error occurred. Show could not be listed.')
-        return jsonify({"error": str(e)}), 500
-  
+      print(e)
+      flash('...')
+      db.session.rollback()
   finally:
-     db.session.close()
+      db.session.close()
 
 
-  return redirect(url_for('index'))
+  return redirect('/')
 
 @app.errorhandler(404)
 def not_found_error(error):

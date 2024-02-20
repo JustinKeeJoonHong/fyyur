@@ -53,12 +53,7 @@ class Show(db.Model):
     artist = db.relationship('Artist', backref=db.backref('shows', cascade='all, delete'))
     venue = db.relationship('Venue', backref=db.backref('shows', cascade='all, delete'))
 
-    def __init__(self, artist_id, venue_id, start_time):
-        self.artist_id = artist_id
-        self.venue_id = venue_id
-        self.start_time = start_time
-        self.update_status()
-    
+   
     def update_status(self):
         if self.start_time < datetime.now():
             self.past = True
