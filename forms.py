@@ -1,16 +1,29 @@
 import re
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms import (
+    StringField, 
+    SelectField, 
+    SelectMultipleField, 
+    DateTimeField, 
+    BooleanField, 
+    ValidationError, 
+    IntegerField
+)
+from wtforms.validators import (
+    DataRequired, 
+    AnyOf, 
+    URL, 
+    NumberRange
+)
 
 
 class ShowForm(Form):
-    artist_id = StringField(
-        'artist_id'
+    artist_id = IntegerField(
+        'artist_id' , validators=[DataRequired(), NumberRange(min=1)]
     )
-    venue_id = StringField(
-        'venue_id'
+    venue_id = IntegerField(
+        'venue_id' , validators=[DataRequired() , NumberRange(min=1)]
     )
     start_time = DateTimeField(
         'start_time',

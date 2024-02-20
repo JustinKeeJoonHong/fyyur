@@ -455,21 +455,26 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
 
   form = ShowForm(request.form)
-  try:
-      show = Show()
-      form.populate_obj(show)
-      db.session.add(show)
-      db.session.commit()
-      flash('success create Show')
-  except ValueError as e:
-      print(e)
-      flash('There is Value error')
-      db.session.rollback()
-  finally:
-      db.session.close()
-
+  if form.validate():  
+        try:
+            show = Show()
+            form.populate_obj(show)
+            db.session.add(show)
+            db.session.commit()
+            flash('Show was successfully listed!')
+        except Exception as e:  
+            db.session.rollback()
+            flash('An error occurred. Show could not be listed. ' + str(e))
+        finally:
+            db.session.close()
+  else:
+        for fieldName, errorMessages in form.errors.items():
+            for err in errorMessages:
+                flash(f'Error in {fieldName} - {err}')
+        return render_template('forms/new_show.html', form=form)  
 
   return redirect('/')
+
 
 @app.errorhandler(404)
 def not_found_error(error):
