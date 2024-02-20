@@ -466,23 +466,19 @@ def create_show_submission():
             return render_template('forms/new_show.html', form=form)
         
         try:
-            print("come try:")
             show = Show()
             form.populate_obj(show)
             db.session.add(show)
             db.session.commit()
             flash('Show was successfully listed!')
         except Exception as e:  
-            print("come to Exception: ")
             db.session.rollback()
             flash('An error occurred. Show could not be listed. ' + str(e))
+            return render_template('forms/new_show.html', form=form)
         finally:
             db.session.close()
   else:
-        print("come to else")
-        for fieldName, errorMessages in form.errors.items():
-            for err in errorMessages:
-                flash(f'test Error in {fieldName} - {err}')
+        flash("You put invalid data time.")
         return render_template('forms/new_show.html', form=form)  
 
   return redirect('/')
