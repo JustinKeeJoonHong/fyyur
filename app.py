@@ -169,42 +169,19 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
   
-
-  error = False
+  form = VenueForm(request.form)
   try:
-       
-        name = request.form['name']
-        city = request.form['city'].strip()
-        city = city[0].upper() + city[1:].lower() 
-        state = request.form['state']
-        address = request.form['address']
-        phone = request.form['phone']
-        genres = request.form['genres'] 
-        image_link = request.form['image_link']
-        facebook_link = request.form['facebook_link']
-        website_link = request.form.get('website_link', '') 
-
-         
-        seeking_talent = 'seeking_talent' in request.form
-        seeking_description = request.form.get('seeking_description', '')
-        
-        
-        venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres,
-                        image_link=image_link, facebook_link=facebook_link,
-                        website_link=website_link, seeking_talent=seeking_talent,
-                        seeking_description=seeking_description)
-        
-        db.session.add(venue)
-        db.session.commit()
-        
-        
-        
-  except Exception as e:
-        db.session.rollback()
-        flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
-        return jsonify({"error": str(e)}), 500
+      venue = Venue()
+      form.populate_obj(venue)
+      db.session.add(venue)
+      db.session.commit()
+      
+  except ValueError as e:
+      print(e)
+      flash('there is invalid value.')
+      db.session.rollback()
   finally:
-        db.session.close()
+      db.session.close()  
 
   # on successful db insert, flash success
   flash('Venue ' + request.form['name'] + ' was successfully listed!')
