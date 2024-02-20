@@ -8,6 +8,8 @@ app = Flask(__name__)
 db = SQLAlchemy()
 migrate = Migrate(app, db)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['WTF_CSRF_ENABLED'] = False
+
 
 
 class Venue(db.Model):

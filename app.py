@@ -456,21 +456,33 @@ def create_show_submission():
 
   form = ShowForm(request.form)
   if form.validate():  
+        artist = Artist.query.get(form.artist_id.data)
+        venue = Venue.query.get(form.venue_id.data)
+        if not artist:
+            flash('Artist does not exist.')
+            return render_template('forms/new_show.html', form=form)
+        elif not venue:
+            flash('Venue does not exist.')
+            return render_template('forms/new_show.html', form=form)
+        
         try:
+            print("come try:")
             show = Show()
             form.populate_obj(show)
             db.session.add(show)
             db.session.commit()
             flash('Show was successfully listed!')
         except Exception as e:  
+            print("come to Exception: ")
             db.session.rollback()
             flash('An error occurred. Show could not be listed. ' + str(e))
         finally:
             db.session.close()
   else:
+        print("come to else")
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
-                flash(f'Error in {fieldName} - {err}')
+                flash(f'test Error in {fieldName} - {err}')
         return render_template('forms/new_show.html', form=form)  
 
   return redirect('/')
