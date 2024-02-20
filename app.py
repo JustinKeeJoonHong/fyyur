@@ -401,18 +401,26 @@ def create_artist_form():
 def create_artist_submission():
     # called upon submitting the new artist listing form
     form = ArtistForm(request.form)
-    try:
+
+    if form.validate():
+      try:
         artist = Artist()
         form.populate_obj(artist)
         db.session.add(artist)
         db.session.commit()
         
-    except ValueError as e:
-        print(e)
-        flash('there is invalid value.')
-        db.session.rollback()
-    finally:
-        db.session.close()  
+      except ValueError as e:
+          print(e)
+          flash('there is invalid value.')
+          db.session.rollback()
+      finally:
+          db.session.close()
+    else:
+        for fieldName, errorMessages in form.errors.items():
+          for err in errorMessages:
+            flash(f'test Error in {fieldName} - {err}')
+        return render_template('forms/new_artist.html', form=form)  
+         
 
     # on successful db insert, flash success
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
