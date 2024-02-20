@@ -321,36 +321,29 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
 
   # artist record with ID <artist_id> using the new attributes
-  error = False
-  try:
-      artist = Artist.query.filter_by(id=artist_id).first()
-      if artist:
-        artist.name = request.form['name']
-        artist.city = request.form['city']
-        artist.state = request.form['state']
-        artist.phone = request.form['phone']
-        artist.genres = request.form['genres'] 
-        artist.image_link = request.form['image_link']
-        artist.facebook_link = request.form['facebook_link']
-        artist.website_link = request.form.get('website_link', '') 
-        artist.seeking_venue = 'seeking_venue' in request.form
-        artist.seeking_description = request.form.get('seeking_description', '')
+  form = ArtistForm(request.form)
+  artist = Artist.query.get(artist_id)
+  if form.validate():
+    try:
+      
+      form.populate_obj(artist)
+      db.session.commit()
+      
+    except Exception as e:
+        flash('An error occurred. Artist could not be updated. ' + str(e))
+        db.session.rollback()
+    finally:
+        db.session.close()
+  else:
+      for fieldName, errorMessages in form.errors.items():
+        for err in errorMessages:
+          flash(f'Error in {fieldName} - {err}')
+      return render_template('forms/edit_artist.html', form=form, artist = artist)  
+         
 
-        db.session.commit()
-      else:
-        error = True
-        flash('Artist not found!')
-  except Exception as e:
-    db.session.rollback()
-    flash('An error occurred. Artist ' + request.form['name'] + ' could not be updated.')
-    return jsonify({"error": str(e)}), 500
-  finally:
-    db.session.close()
-
-  if not error:
-    flash('Artist ' + request.form['name'] + ' was successfully updated!')
-
+    # on successful db insert, flash success
   return redirect(url_for('show_artist', artist_id=artist_id))
+  
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
@@ -362,37 +355,23 @@ def edit_venue(venue_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
   # venue record with ID <venue_id> using the new attributes
-  error = False
-  try:
-      venue = Venue.query.filter_by(id=venue_id).first()
-      if venue:
-        venue.name = request.form['name']
-        city = request.form['city'].strip()
-        venue.city = city[0].upper() + city[1:].lower()
-        venue.state = request.form['state']
-        venue.address = request.form['address']
-        venue.phone = request.form['phone']
-        venue.genres = request.form['genres'] 
-        venue.image_link = request.form['image_link']
-        venue.facebook_link = request.form['facebook_link']
-        venue.website_link = request.form.get('website_link', '') 
-        venue.seeking_talent = 'seeking_talent' in request.form
-        venue.seeking_description = request.form.get('seeking_description', '')
-
+  form = VenueForm(request.form)
+  venue = Venue.query.get(venue_id)
+  if form.validate():
+    try:
+        form.populate_object(venue)
         db.session.commit()
-      else:
-        error = True
-        flash('Venue not found!')
-  except Exception as e:
-    db.session.rollback()
-    flash('An error occurred. Venue ' + request.form['name'] + ' could not be updated.')
-    return jsonify({"error": str(e)}), 500
-  finally:
-    db.session.close()
-
-  if not error:
-    flash('Venue ' + request.form['name'] + ' was successfully updated!')
-
+    except Exception as e:
+        flash('An error occurred. Venue could not be updated. ' + str(e))
+        db.session.rollback()
+    finally:
+        db.session.close()
+  else:
+      for fieldName, errorMessages in form.errors.items():
+        for err in errorMessages:
+          flash(f'Error in {fieldName} - {err}')
+      return render_template('forms/edit_venue.html', form=form, venue = venue)  
+         
   
   return redirect(url_for('show_venue', venue_id=venue_id))
 
