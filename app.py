@@ -460,10 +460,10 @@ def create_show_submission():
       form.populate_obj(show)
       db.session.add(show)
       db.session.commit()
-      flash('...')
+      flash('success create Show')
   except ValueError as e:
       print(e)
-      flash('...')
+      flash('There is Value error')
       db.session.rollback()
   finally:
       db.session.close()
