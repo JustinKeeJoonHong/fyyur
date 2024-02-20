@@ -18,12 +18,6 @@ class ShowForm(Form):
         default= datetime.today()
     )
 
-def validate_phone(self, phone):
-        us_phone_num = '^([0-9]{3})[-][0-9]{3}[-][0-9]{4}$'
-        match = re.search(us_phone_num, phone.data)
-        if not match:
-            raise ValidationError('Error, phone number must be in format xxx-xxx-xxxx')
-
     
 class VenueForm(Form):
     name = StringField(
@@ -93,7 +87,7 @@ class VenueForm(Form):
     )
     phone = StringField(
         'phone',
-        validators=[DataRequired(), validate_phone]
+        validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link'
@@ -135,6 +129,12 @@ class VenueForm(Form):
     seeking_description = StringField(
         'seeking_description'
     )
+
+    def validate_phone(self, field):
+        us_phone_num = '^([0-9]{3})[-][0-9]{3}[-][0-9]{4}$'
+        match = re.search(us_phone_num, field.data)
+        if not match:
+            raise ValidationError('Error, phone number must be in format xxx-xxx-xxxx')
 
 
 
@@ -204,7 +204,7 @@ class ArtistForm(Form):
     phone = StringField(
         
         'phone',
-        validators=[DataRequired(), validate_phone]
+        validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link'
@@ -247,4 +247,9 @@ class ArtistForm(Form):
     seeking_description = StringField(
             'seeking_description'
      )
+    def validate_phone(self, field):
+        us_phone_num = '^([0-9]{3})[-][0-9]{3}[-][0-9]{4}$'
+        match = re.search(us_phone_num, field.data)
+        if not match:
+            raise ValidationError('Error, phone number must be in format xxx-xxx-xxxx')
 

@@ -7,6 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 db = SQLAlchemy()
 migrate = Migrate(app, db)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 class Venue(db.Model):
