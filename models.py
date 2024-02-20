@@ -11,7 +11,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['WTF_CSRF_ENABLED'] = False
 
 
-
 class Venue(db.Model):
     __tablename__ = 'venues'
 
@@ -29,6 +28,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(120))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
+
 class Artist(db.Model):
     __tablename__ = 'artists'
 
@@ -45,17 +45,21 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(120))
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
 
+
 class Show(db.Model):
     __tablename__ = 'shows'
     id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey(
+        'artists.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey(
+        'venues.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
-    
-    artist = db.relationship('Artist', backref=db.backref('shows', cascade='all, delete'))
-    venue = db.relationship('Venue', backref=db.backref('shows', cascade='all, delete'))
 
-   
+    artist = db.relationship('Artist', backref=db.backref(
+        'shows', cascade='all, delete'))
+    venue = db.relationship('Venue', backref=db.backref(
+        'shows', cascade='all, delete'))
+
     def update_status(self):
         if self.start_time < datetime.now():
             self.past = True
