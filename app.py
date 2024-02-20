@@ -170,19 +170,25 @@ def create_venue_form():
 def create_venue_submission():
   
   form = VenueForm(request.form)
-  try:
+  if form.validate():
+    try:
       venue = Venue()
       form.populate_obj(venue)
       db.session.add(venue)
       db.session.commit()
       
-  except ValueError as e:
-      print(e)
-      flash('there is invalid value.')
-      db.session.rollback()
-  finally:
-      db.session.close()  
-
+    except Exception as e:
+        flash('An error occurred. Venue could not be listed. ' + str(e))
+        db.session.rollback()
+        return render_template('forms/new_venue.html', form=form)
+    finally:
+        db.session.close()
+  else:
+    for fieldName, errorMessages in form.errors.items():
+          for err in errorMessages:
+            flash(f'Error in {fieldName} - {err}')
+    return render_template('forms/new_venue.html', form=form)
+  
   # on successful db insert, flash success
   flash('Venue ' + request.form['name'] + ' was successfully listed!')
   return redirect('/')
@@ -209,8 +215,9 @@ def delete_venue(venue_id):
       else:
         flash('Venue not found.')
     except Exception as e:
-      db.session.rollback()
-      flash(f'An error occurred. {e}')
+       flash('An error occurred. Venue could not deleted. ' + str(e))
+       db.session.rollback()
+      
     finally:
       db.session.close()
   return redirect(url_for('venues'))
@@ -409,16 +416,15 @@ def create_artist_submission():
         db.session.add(artist)
         db.session.commit()
         
-      except ValueError as e:
-          print(e)
-          flash('there is invalid value.')
+      except Exception as e:
+          flash('An error occurred. Artist could not be listed. ' + str(e))
           db.session.rollback()
       finally:
           db.session.close()
     else:
         for fieldName, errorMessages in form.errors.items():
           for err in errorMessages:
-            flash(f'test Error in {fieldName} - {err}')
+            flash(f'Error in {fieldName} - {err}')
         return render_template('forms/new_artist.html', form=form)  
          
 
